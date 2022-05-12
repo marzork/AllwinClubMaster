@@ -71,7 +71,7 @@ class connectDao:
 			myCursor = MyDb.cursor()
 			myCursor.execute("SELECT countSubs,id FROM copytraderone.contasallwinn where email='"+email+"'")
 			account = myCursor.fetchone()
-			if id_acc in ['531','27195','27194','27197']:
+			if product_id in ['531','27195','27194','27197']:
 				if account == None:
 					myCursor = MyDb.cursor()
 					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'SAL', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','SAL','1')")
@@ -83,10 +83,10 @@ class connectDao:
 					MyDb.commit()
 					myCursor = MyDb.cursor()
 					countSubs = int(account[0]) + 1
-					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'SAL', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','SAL','"+countSubs+"')")
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'SAL', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','SAL','"+str(countSubs)+"')")
 					MyDb.commit()
 					MyDb.close()
-			if id_acc in ['27195']:
+			if product_id in ['27195']:
 				if account == None:
 					myCursor = MyDb.cursor()
 					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','1')")
@@ -98,10 +98,10 @@ class connectDao:
 					MyDb.commit()
 					myCursor = MyDb.cursor()
 					countSubs = int(account[0]) + 1
-					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','"+countSubs+"')")
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','"+str(countSubs)+"')")
 					MyDb.commit()
 					MyDb.close()
-			if id_acc in ['27197']:
+			if product_id in ['27197']:
 				if account == None:
 					myCursor = MyDb.cursor()
 					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','1')")
@@ -113,7 +113,7 @@ class connectDao:
 					MyDb.commit()
 					myCursor = MyDb.cursor()
 					countSubs = int(account[0]) + 1
-					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','"+countSubs+"')")
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','"+str(countSubs)+"')")
 					MyDb.commit()
 					MyDb.close()
 				if account == None:
@@ -127,10 +127,10 @@ class connectDao:
 					MyDb.commit()
 					myCursor = MyDb.cursor()
 					countSubs = int(account[0]) + 1
-					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','"+countSubs+"')")
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','"+str(countSubs)+"')")
 					MyDb.commit()
 					MyDb.close()
-			if id_acc in ['27197','27194']:
+			if product_id in ['27197','27194']:
 				if account == None:
 					myCursor = MyDb.cursor()
 					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','1')")
@@ -142,7 +142,7 @@ class connectDao:
 					MyDb.commit()
 					myCursor = MyDb.cursor()
 					countSubs = int(account[0]) + 1
-					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','"+countSubs+"')")
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','"+str(countSubs)+"')")
 					MyDb.commit()
 					MyDb.close()
 			return True,''

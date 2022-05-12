@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 ACTIVCATALAGVip = ['TODOS','EURAUD','AUDNZD','GBPNZD','USDCAD','AUDJPY','GBPCAD','GBPAUD','EURUSD','EURGBP','GBPJPY','EURJPY','GBPUSD','USDJPY','AUDCAD',"USDINR-OTC","USDSGD-OTC","USDHKD-OTC",'NZDUSD','USDCHF','AUDUSD','EOSUSD','XRPUSD','ETHUSD','LTCUSD','BTCUSD','USDJPY-OTC','AUDCAD-OTC','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','EURCAD']
 #1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0
 #5205191564:AAHlQzCk2TQBqMtsd0QGDB8FcQTH3aL-GGw
-API_TOKEN = '1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0'
+API_TOKEN = '5205191564:AAHlQzCk2TQBqMtsd0QGDB8FcQTH3aL-GGw'
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
@@ -37,13 +37,13 @@ def dateTimeFormat(dateTime):
 	return date+' '+time
 
 def Sheac(email):
-	ts, key, secret  = connectDao.conwoo()
-	if ts:
+	
+	if True:
 		email = int(email)
 		wcapi = API(
 			url="https://allwinclub.vip",
-			consumer_key=key,
-			consumer_secret=secret,
+			consumer_key='ck_a897889fddd55e8a0e3f35fcbac97e0c048f2c8c',
+			consumer_secret='cs_fd98e918b2ff4a04abb0c715fa6449704f00f196',
 			version="wc/v3"
 		)
 		a = wcapi.get("subscriptions/"+str(email)).json()
@@ -62,13 +62,12 @@ def Sheac(email):
 			return None,None,None, None,None,None,None,None,None
 def validateCod(email):
 	try:
-		ts, key, secret  = connectDao.conwoo()
 		ass = ''
-		if ts:
+		if True:
 			wcapi = API(
 				url="https://allwinclub.vip",
-				consumer_key=key,
-				consumer_secret=secret,
+				consumer_key='ck_a897889fddd55e8a0e3f35fcbac97e0c048f2c8c',
+				consumer_secret='cs_fd98e918b2ff4a04abb0c715fa6449704f00f196',
 				version="wc/v3"
 			)
 			a = wcapi.get("subscriptions/"+str(email)).json()
@@ -82,7 +81,7 @@ def validateCod(email):
 					#dataFormat = str(datetime.datetime.now()).split('-')
 					#second_date = datetime.date(int(dataFormat[0]),int(dataFormat[1]),int(dataFormat[2][:-16]))
 					
-					if str(a['line_items'][0]['product_id']) in ['531']:
+					if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
 						if a['status'] in ['processing','completed']:
 							return True,''
 						else:
@@ -91,7 +90,7 @@ def validateCod(email):
 						return False,'Produto não permitido: '+str(a['line_items'][0]['product_id'])
 			else:
 				
-				if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
+				if str(a['line_items'][0]['product_id']) in ['531']:
 					if a['status'] in ['processing','active']:
 						return True,''
 					else:
@@ -101,16 +100,15 @@ def validateCod(email):
 		#print(e)
 		return False,''
 def validateEmail(email,senha):
-	ts, key, secret  = connectDao.conwoo()
-	if ts:
+	if True:
 		wcapi = API(
 			url="https://allwinclub.vip",
-			consumer_key=key,
-			consumer_secret=secret,
+			consumer_key='ck_a897889fddd55e8a0e3f35fcbac97e0c048f2c8c',
+			consumer_secret='cs_fd98e918b2ff4a04abb0c715fa6449704f00f196',
 			version="wc/v3"
 		)
 		a = wcapi.get("subscriptions/"+str(senha)).json()
-		print(a)
+
 		if "ID inválido" in str(a):
 			a = wcapi.get("orders/"+str(senha)).json()
 			print(a)
