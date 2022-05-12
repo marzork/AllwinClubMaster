@@ -69,24 +69,83 @@ class connectDao:
 		try:
 			MyDb = connection.connection2()
 			myCursor = MyDb.cursor()
-			myCursor.execute("SELECT countSubs,id FROM copytraderone.contasallwinn where email='"+email+"' and typebot = 'SAL'")
+			myCursor.execute("SELECT countSubs,id FROM copytraderone.contasallwinn where email='"+email+"'")
 			account = myCursor.fetchone()
-			if account == None:
-				myCursor = MyDb.cursor()
-				myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'SAL', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','SAL','1')")
-				MyDb.commit()
-				MyDb.close()
-				return True,''
-			else:
-				myCursor = MyDb.cursor()
-				myCursor.execute("DELETE FROM copytraderone.contasallwinn WHERE id = "+str(account[1]))
-				MyDb.commit()
-				myCursor = MyDb.cursor()
-				countSubs = int(account[0]) + 1
-				myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'SAL', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','SAL','"+countSubs+"')")
-				MyDb.commit()
-				MyDb.close()
-				return True,''
+			if id_acc in ['531','27195','27194','27197']:
+				if account == None:
+					myCursor = MyDb.cursor()
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'SAL', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','SAL','1')")
+					MyDb.commit()
+					MyDb.close()
+				else:
+					myCursor = MyDb.cursor()
+					myCursor.execute("DELETE FROM copytraderone.contasallwinn WHERE id = "+str(account[1]))
+					MyDb.commit()
+					myCursor = MyDb.cursor()
+					countSubs = int(account[0]) + 1
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'SAL', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','SAL','"+countSubs+"')")
+					MyDb.commit()
+					MyDb.close()
+			if id_acc in ['27195']:
+				if account == None:
+					myCursor = MyDb.cursor()
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','1')")
+					MyDb.commit()
+					MyDb.close()
+				else:
+					myCursor = MyDb.cursor()
+					myCursor.execute("DELETE FROM copytraderone.contasallwinn WHERE id = "+str(account[1]))
+					MyDb.commit()
+					myCursor = MyDb.cursor()
+					countSubs = int(account[0]) + 1
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','"+countSubs+"')")
+					MyDb.commit()
+					MyDb.close()
+			if id_acc in ['27197']:
+				if account == None:
+					myCursor = MyDb.cursor()
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','1')")
+					MyDb.commit()
+					MyDb.close()
+				else:
+					myCursor = MyDb.cursor()
+					myCursor.execute("DELETE FROM copytraderone.contasallwinn WHERE id = "+str(account[1]))
+					MyDb.commit()
+					myCursor = MyDb.cursor()
+					countSubs = int(account[0]) + 1
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'LAB', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','LAB','"+countSubs+"')")
+					MyDb.commit()
+					MyDb.close()
+				if account == None:
+					myCursor = MyDb.cursor()
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','1')")
+					MyDb.commit()
+					MyDb.close()
+				else:
+					myCursor = MyDb.cursor()
+					myCursor.execute("DELETE FROM copytraderone.contasallwinn WHERE id = "+str(account[1]))
+					MyDb.commit()
+					myCursor = MyDb.cursor()
+					countSubs = int(account[0]) + 1
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','"+countSubs+"')")
+					MyDb.commit()
+					MyDb.close()
+			if id_acc in ['27197','27194']:
+				if account == None:
+					myCursor = MyDb.cursor()
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','1')")
+					MyDb.commit()
+					MyDb.close()
+				else:
+					myCursor = MyDb.cursor()
+					myCursor.execute("DELETE FROM copytraderone.contasallwinn WHERE id = "+str(account[1]))
+					MyDb.commit()
+					myCursor = MyDb.cursor()
+					countSubs = int(account[0]) + 1
+					myCursor.execute("insert into copytraderone.contasallwinn (email, password, value, order_key, name, product_id, activate, token, chat_id, date,acc_id,typebot,countSubs) VALUES ('"+email+"', '"+senha+"', '"+valor+"', '"+order_key+"', '"+name+"', '"+product_id+"', 'active', 'BOT', '"+chat_id+"', '"+date_c+"', '"+id_acc+"','BOT','"+countSubs+"')")
+					MyDb.commit()
+					MyDb.close()
+			return True,''
 		except Exception as a:
 			MyDb.close()
 			return False,"ERRO: "+str(a)

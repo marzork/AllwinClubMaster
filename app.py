@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 ACTIVCATALAGVip = ['TODOS','EURAUD','AUDNZD','GBPNZD','USDCAD','AUDJPY','GBPCAD','GBPAUD','EURUSD','EURGBP','GBPJPY','EURJPY','GBPUSD','USDJPY','AUDCAD',"USDINR-OTC","USDSGD-OTC","USDHKD-OTC",'NZDUSD','USDCHF','AUDUSD','EOSUSD','XRPUSD','ETHUSD','LTCUSD','BTCUSD','USDJPY-OTC','AUDCAD-OTC','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','EURCAD']
 #1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0
 #5205191564:AAHlQzCk2TQBqMtsd0QGDB8FcQTH3aL-GGw
-API_TOKEN = '5205191564:AAHlQzCk2TQBqMtsd0QGDB8FcQTH3aL-GGw'
+API_TOKEN = '1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0'
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
@@ -35,81 +35,103 @@ def dateTimeFormat(dateTime):
 	date = dateTime[0].split('-')
 	date = date[2]+'/'+date[1]+'/'+date[0]
 	return date+' '+time
+
 def Sheac(email):
-	try:
-		if True:
-			email = int(email)
-			wcapi = API(
-				url="https://allwinclub.vip",
-				consumer_key='ck_a897889fddd55e8a0e3f35fcbac97e0c048f2c8c',
-				consumer_secret='cs_fd98e918b2ff4a04abb0c715fa6449704f00f196',
-				version="wc/v3"
-			)
-			a = wcapi.get("subscriptions/"+str(email)).json()
-			#print(a)
+	ts, key, secret  = connectDao.conwoo()
+	if ts:
+		email = int(email)
+		wcapi = API(
+			url="https://allwinclub.vip",
+			consumer_key=key,
+			consumer_secret=secret,
+			version="wc/v3"
+		)
+		a = wcapi.get("subscriptions/"+str(email)).json()
+		if "ID inválido" in str(a):
+			a = wcapi.get("orders/"+str(email)).json()
 			if "ID inválido" in str(a):
-				if "ID inválido" in str(a):
-					return None,None,None, None,None,None,None,None,None
-				else:
-					if str(a['line_items'][0]['product_id']) in ['531']:
-						if a['status'] == 'completed':
-							return a['order_key'][12:],a['parent_id'],a['date_created'], a['total'],a['order_key'],a['billing']['email'],a['line_items'][0]['name'],a['line_items'][0]['product_id'],'active'
-						else:
-							return None,None,None, None,None,None,None,None,None
-					else:
-						return None,None,None, None,None,None,None,None,None
+				return False
 			else:
-				if a['status']  in ['active','processing']:
-					return a['order_key'][12:],a['parent_id'],a['date_created'], a['total'],a['order_key'],a['billing']['email'],a['line_items'][0]['name'],a['line_items'][0]['product_id'],'active'
-				return None,None,None, None,None,None,None,None,None
-	except:
-		return None,None,None, None,None,None,None,None,None
+				if a['status'] in ['processing','completed']:
+					return a['order_key'][12:],a['date_modified'], a['total'],a['order_key'],a['billing']['email'],a['line_items'][0]['name'],a['line_items'][0]['product_id'],'active'
+				else:
+					return None,None,None, None,None,None,None,None,None
+		else:
+			if a['status'] in ['processing','active']:
+				return a['order_key'][12:],a['date_modified'], a['total'],a['order_key'],a['billing']['email'],a['line_items'][0]['name'],a['line_items'][0]['product_id'],'active'
+			return None,None,None, None,None,None,None,None,None
 def validateCod(email):
 	try:
+		ts, key, secret  = connectDao.conwoo()
 		ass = ''
-		if True:
+		if ts:
 			wcapi = API(
 				url="https://allwinclub.vip",
-				consumer_key='ck_a897889fddd55e8a0e3f35fcbac97e0c048f2c8c',
-				consumer_secret='cs_fd98e918b2ff4a04abb0c715fa6449704f00f196',
+				consumer_key=key,
+				consumer_secret=secret,
 				version="wc/v3"
 			)
 			a = wcapi.get("subscriptions/"+str(email)).json()
-			#print(a)
 			if "ID inválido" in str(a):
-				return False, 'Invalido'
+				a = wcapi.get("orders/"+str(email)).json()
+				if "ID inválido" in str(a):
+					return False, 'Invalido'
+				else:
+					#dataFormat = a['date_created'].split('-')
+					#pri_date = datetime.date(int(dataFormat[0]),int(dataFormat[1]),int(dataFormat[2][:-9]))	
+					#dataFormat = str(datetime.datetime.now()).split('-')
+					#second_date = datetime.date(int(dataFormat[0]),int(dataFormat[1]),int(dataFormat[2][:-16]))
+					
+					if str(a['line_items'][0]['product_id']) in ['531']:
+						if a['status'] in ['processing','completed']:
+							return True,''
+						else:
+							return False, 'active'
+					else:
+						return False,'Produto não permitido: '+str(a['line_items'][0]['product_id'])
 			else:
 				
-				if str(a['line_items'][0]['product_id']) in ['531']:
-					if a['status'] in ['active','processing']:
+				if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
+					if a['status'] in ['processing','active']:
 						return True,''
 					else:
 						return False,'Produto não permitido: '+str(a['line_items'][0]['product_id'])
 				return False,'Produto não permitido: '+str(a['line_items'][0]['product_id'])
 	except Exception as e:
-		##print(e)
+		#print(e)
 		return False,''
 def validateEmail(email,senha):
-	try:
+	ts, key, secret  = connectDao.conwoo()
+	if ts:
 		wcapi = API(
 			url="https://allwinclub.vip",
-			consumer_key='ck_a897889fddd55e8a0e3f35fcbac97e0c048f2c8c',
-			consumer_secret='cs_fd98e918b2ff4a04abb0c715fa6449704f00f196',
+			consumer_key=key,
+			consumer_secret=secret,
 			version="wc/v3"
 		)
 		a = wcapi.get("subscriptions/"+str(senha)).json()
-		#print(a)
+		print(a)
 		if "ID inválido" in str(a):
-			return False
+			a = wcapi.get("orders/"+str(senha)).json()
+			print(a)
+			if "ID inválido" in str(a):
+				return False
+			else:
+				if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
+					if email == a['billing']['email']:
+						return True
+					else:
+						return False
+				return False
 		else:
 			if str(a['line_items'][0]['product_id']) in ['531']:
-				if email.lower() == a['billing']['email'].lower():
+				if email == a['billing']['email']:
 					return True
 				else:
 					return False
 			return False
 			
-	except:
+	else:
 		return False
 def is_int(d):
 	try:
@@ -175,9 +197,9 @@ async def process_optionsdateTop(message: types.Message, state: FSMContext):
 		await message.reply("Ok, cancelado")
 		await state.finish()
 	if validateEmail(data['senha'],data['email'].replace('#','')):
-		passd,id_acc,date_c, valor,order_key,email,name,product_id,active = Sheac(data['email'].replace('#',''))
+		passd,date_c,valor,order_key,email,name,product_id,active = Sheac(data['email'].replace('#',''))
 		if passd != None:
-			sig, a = connectDao.insertAcc(str(email), str(passd), str(valor),str(order_key), str(name), str(product_id), str(active), 'LAB', str(message.chat.id), str(date_c), str(id_acc))
+			sig, a = connectDao.insertAcc(str(email), str(passd), str(valor),str(order_key), str(name), str(product_id), str(active), 'LAB', str(message.chat.id), str(date_c), str(data['email']))
 			if sig:
 				await message.reply(''' 
 
