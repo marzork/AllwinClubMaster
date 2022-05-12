@@ -401,7 +401,7 @@ async def bot_message(message: types.Message):
 		await message.reply('Pode chamar o @marzork',reply_markup=nav.subMenuTre)
 	if message.text == 'ATIVAR ASSINATURA':
 		await message.reply("Que tipo de assinatura?",reply_markup=nav.subMenuTo)
-	if message.text == 'MENSAL':
+	if message.text in ['MENSAL','VITALICIO']:
 		await cmd_start(message)
 
 if __name__ == '__main__':

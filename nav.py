@@ -14,7 +14,10 @@ subMenuTre.add(btnB)
 
 
 btnB = KeyboardButton('MENSAL')
-subMenuTo = ReplyKeyboardMarkup(resize_keyboard = True).add(btnB)
+btnA = KeyboardButton('VITALICIO')
+subMenuTo = ReplyKeyboardMarkup(resize_keyboard = True)
+subMenuTo.add(btnB)
+subMenuTo.add(btnA)
 
 
 btnA = KeyboardButton('ENTRAR NO GRUPO GRATUITO')
