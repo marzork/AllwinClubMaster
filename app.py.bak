@@ -1,0 +1,912 @@
+import logging
+from Controller.controlCatalog import controlCatalog
+from Controller.controlNotfy import controlCatalo
+from Controller.controlNotfH import controlCataloH
+from aiogram import Bot, Dispatcher, types
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import ParseMode
+from Controller.controlDao import connectDao
+from aiogram.utils import executor
+import threading
+from woocommerce import API
+import datetime,time
+from Controller.controlEnum import MENSAGE
+from telegram import ParseMode
+from googletrans import Translator
+from Controller.controlConfig import  controlValue, MsgTo
+
+from googletrans import Translator
+translator = Translator()
+
+	
+logging.basicConfig(level=logging.INFO)
+ACTIVCATALAGVip = ['TODOS','EURAUD','AUDNZD','GBPNZD','USDCAD','AUDJPY','GBPCAD','GBPAUD','EURUSD','EURGBP','GBPJPY','EURJPY','GBPUSD','USDJPY','AUDCAD',"USDINR-OTC","USDSGD-OTC","USDHKD-OTC",'NZDUSD','USDCHF','AUDUSD','EOSUSD','XRPUSD','ETHUSD','LTCUSD','BTCUSD','USDJPY-OTC','AUDCAD-OTC','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','EURCAD']
+#1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0
+#2131705793:AAErrfURO7fcpXV04gGF9IWIX_2PSMu8dtM
+API_TOKEN = '2131705793:AAErrfURO7fcpXV04gGF9IWIX_2PSMu8dtM'
+bot = Bot(token=API_TOKEN)
+storage = MemoryStorage()
+dp = Dispatcher(bot, storage=storage)
+def Sheac(email):
+	ts, key, secret  = connectDao.conwoo()
+	if ts:
+		email = int(email)
+		wcapi = API(
+			url="https://allwinclub.vip",
+			consumer_key=key,
+			consumer_secret=secret,
+			version="wc/v3"
+		)
+		a = wcapi.get("subscriptions/"+str(email)).json()
+		if "ID inválido" in str(a):
+			a = wcapi.get("orders/"+str(email)).json()
+			if "ID inválido" in str(a):
+				return False
+			else:
+				if str(a['line_items'][0]['product_id']) in ['20456','20454','27195','20452','27194','27197','23305','23295','23304']:
+					if a['status'] == 'completed':
+						return a['order_key'][12:],a['parent_id'],a['date_created'], a['total'],a['order_key'],a['billing']['email'],a['line_items'][0]['name'],a['line_items'][0]['product_id'],a['status']
+					else:
+						return None,None,None, None,None,None,None,None,None
+				else:
+					return None,None,None, None,None,None,None,None,None
+		else:
+			if a['status'] == 'active':
+				return a['order_key'][12:],a['parent_id'],a['date_created'], a['total'],a['order_key'],a['billing']['email'],a['line_items'][0]['name'],a['line_items'][0]['product_id'],a['status']
+def validateCod(email):
+	try:
+		ts, key, secret  = connectDao.conwoo()
+		ass = ''
+		if ts:
+			wcapi = API(
+				url="https://allwinclub.vip",
+				consumer_key=key,
+				consumer_secret=secret,
+				version="wc/v3"
+			)
+			a = wcapi.get("subscriptions/"+str(email)).json()
+			if "ID inválido" in str(a):
+				a = wcapi.get("orders/"+str(email)).json()
+				if "ID inválido" in str(a):
+					return False, 'Invalido'
+				else:
+					if str(a['line_items'][0]['product_id']) in ['20456','20454','27195','20452','27194','27197','23305','23295','23304']:
+						if a['status'] == 'completed':
+							return True,''
+						else:
+							return False,a['status']
+					else:
+						return False,'Produto não permitido: '+str(a['line_items'][0]['product_id'])
+			else:
+				if str(a['line_items'][0]['product_id']) in ['20456','20454','27195','20452','27194','27197','23305','23295','23304']:
+					if a['status'] == 'active':
+						return True,''
+					else:
+						return False,'Produto não permitido: '+str(a['line_items'][0]['product_id'])
+	except Exception as e:
+		#print(e)
+		return False,''
+def validateEmail(email,senha):
+	ts, key, secret  = connectDao.conwoo()
+	if ts:
+		wcapi = API(
+			url="https://allwinclub.vip",
+			consumer_key=key,
+			consumer_secret=secret,
+			version="wc/v3"
+		)
+		a = wcapi.get("subscriptions/"+str(senha)).json()
+		if "ID inválido" in str(a):
+			a = wcapi.get("orders/"+str(senha)).json()
+			if "ID inválido" in str(a):
+				return False
+			else:
+				if str(a['line_items'][0]['product_id']) in ['20456','20454','27195','20452','27194','27197','23305','23295','23304']:
+					if email == a['billing']['email']:
+						return True
+					else:
+						return False
+		else:
+			if str(a['line_items'][0]['product_id']) in ['20456','20454','27195','20452','27194','27197','23305','23295','23304']:
+				if email == a['billing']['email']:
+					return True
+				else:
+					return False
+	else:
+		return False
+	
+	
+def is_int(d):
+	try:
+		int(d)
+		return d
+	except ValueError:
+		return False
+	except TypeError:
+		return False
+def is_float(d):
+	try:
+		float(d)
+		return d
+	except ValueError:
+		return False
+	except TypeError:
+		return False
+def is_str(d):
+	try:
+		str(d)
+		return d
+	except ValueError:
+		return False
+	except TypeError:
+		return False
+
+class Formsig(StatesGroup):
+	email = State()
+	senha = State()
+	finish = State()
+
+class sendmsg(StatesGroup):
+	msg = State()
+	finish = State()
+@dp.message_handler(commands='sendmsg')	
+async def cmd_tt(message: types.Message):
+	if str(message.chat.id) in ['971655878']:
+		await sendmsg.msg.set()
+		await message.reply("{0}, qual a mensagem?".format(message.from_user.first_name))
+	else:
+		await message.reply("{0}, Você recebeu uma advertencia e foi reportado para o suporte:".format(message.from_user.first_name))
+@dp.message_handler(state=sendmsg.msg)
+async def procs_serco(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		if 'cancelar' in message.text.lower():
+			markup = types.ReplyKeyboardRemove()
+			await message.reply("Ok, Cancelado")
+			await state.finish()
+		else:
+			data['msg'] = message.text
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("SIM","NÃO")
+			await sendmsg.next()
+			await message.reply("Posso enviar?",reply_markup=markup)
+
+@dp.message_handler(lambda message: message.text not in ["SIM","NÃO","cancelar"], state=sendmsg.finish)
+async def proces_typetouro_invalid(message: types.Message):
+	markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+	markup.add("SIM","NÃO","CANCELAR")
+	await message.reply(message.chat.id,'escolha a opção no teclado',reply_markup=markup)
+@dp.message_handler(state=sendmsg.finish)
+async def proces_FINSH(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['finish'] = message.text
+		markup = types.ReplyKeyboardRemove()
+		if data['finish'] == "SIM":
+			try:
+				valid, Users = connectDao.selUsers()
+				if valid:
+					for user in Users:
+						time.sleep(0.2)
+						threading.Thread(target=MsgTo.send_msg, args=(str(data['msg']),str(user[0]),API_TOKEN), daemon=True).start()
+					await state.finish()
+				else:
+					MsgTo.upload_file (message.chat.id,'ERRO USER',parse_mode=ParseMode.HTML)
+					await state.finish()
+					
+			except Exception as a:
+				await message.reply('ERRO: Contate o suporte com o erro: '+str(a),reply_markup=markup)
+				await state.finish()
+				pass
+
+		else:
+			await message.reply("Ok, encerrado")
+			await state.finish()
+
+@dp.message_handler(commands='ativar')
+async def cmd_start(message: types.Message):
+	await Formsig.email.set()
+	await message.reply("Oi {0}, Qual código de compra?".format(message.chat.first_name))
+
+
+@dp.message_handler(state=Formsig.email)	
+async def process_semail(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['email'] = message.text
+	check, reaos = validateCod(message.text)
+	if check == False:
+		await message.reply("STATUS: "+reaos+". tente novamente. /start")
+		await state.finish()
+	else:
+		await Formsig.next()
+		await message.reply("Isso ai {0}, Qual Email???".format(message.chat.first_name))
+
+@dp.message_handler(state=Formsig.senha)
+async def process_optionsdateTop(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		ss = message.text
+		data['senha'] = ss
+	if "cancelar" in message.text.lower():
+		await message.reply("Ok, cancelado")
+		await state.finish()
+	if validateEmail(data['senha'],data['email']):
+		passd,id_acc,date_c, valor,order_key,email,name,product_id,active = Sheac(data['email'])
+		if passd != None:
+			sig, a = connectDao.insertAcc(str(email), str(passd), str(valor),str(order_key), str(name), str(product_id), str(active), 'LAB', str(message.chat.id), str(date_c), str(id_acc))
+			if sig:
+				await message.reply("OK\n\nAtivo",reply_markup=markup)
+			else:
+				await message.reply(a,reply_markup=markup)
+		else:
+			await message.reply("ERRO",reply_markup=markup)
+		await state.finish()
+	else:
+		await message.reply("invalido, tente novamente. /start")
+		await state.finish()
+
+class FormCalc(StatesGroup):
+	types = State()
+	input =  State()
+class FormJuros(StatesGroup):
+	input = State()
+	banca = State()
+	days = State()
+
+@dp.message_handler(commands='add')
+async def cmd_start(message: types.Message):
+	controlValue.conf(str(message.chat.id),{'EURUSDS'+'NONE':True})
+	await bot.send_message(message.chat.id,MENSAGE.ALL.value.format(message.chat.first_name),parse_mode=ParseMode.HTML)
+	await bot.send_message(message.chat.id,'Como operar? Clique aqui! https://allwinclub.vip/guia-de-operacoes-win-lab',parse_mode=ParseMode.HTML)
+
+	#controlValue.conf(str(message.chat.id),{'EURUSDS'+'NONE':True})
+	#await bot.send_message(message.chat.id,str(translator.translate(MENSAGE.ALL.value.format(message.chat.first_name), dest='en').text),parse_mode=ParseMode.HTML)
+	#await bot.send_message(message.chat.id,str(translator.translate("Como operar? Clique aqui! https://allwinclub.vip/guia-de-operacoes-win-lab", dest='en').text), parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(commands='help')
+async def cmd_start(message: types.Message):
+	await bot.send_message(message.chat.id,'Clique aqui! https://allwinclub.vip/guia-de-operacoes-win-lab',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(commands='gerenciamento')
+async def cmd_gerenciamento(message: types.Message):
+	try:
+		if connectDao.AuthId(message.chat.id):
+			await FormCalc.types.set()
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("Ciclos", "SorosGale","Gale","Cancelar")
+			await message.reply("Qual tipo de calculadora deseja simular? Ciclos, Gale, SorosGale?",reply_markup=markup)
+		else:
+			await message.reply("Usuario não está ativo")
+	except Exception as a:
+		await message.reply("ERRO: {0} ".format(str(a)))
+
+		
+@dp.message_handler(state=FormCalc.types)
+async def process_types(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		data['types'] = message.text
+	if data['types'].lower() == 'cancelar':
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		try:
+			await message.reply("Qual valor da sua entrada(R$)?",reply_markup=markup)
+			await FormCalc.next()
+		except Exception as a:
+			await bot.send_message('ERRO',parse_mode=ParseMode.HTML,reply_markup=markup)
+			await state.finish()
+			pass
+	
+@dp.message_handler(lambda message: is_float(message.text) == False, state=FormCalc.input)
+async def process_types_invalid(message: types.Message):
+	return await message.reply("Invalido, Qual valor da sua entrada(R$)?")
+
+@dp.message_handler(state=FormCalc.input)
+async def process_input(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['input'] = message.text
+	if data['input'].lower() == 'cancelar':
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		try:
+			if "Ciclos" == data['types']:
+				await message.reply(controlValue.CalcCi(data['input']))
+			elif "SorosGale" == data['types']:
+				await message.reply(controlValue.CalcSo(data['input']))
+			else:
+				await message.reply(controlValue.CalcGal(data['input']))
+			await state.finish()
+		except Exception as a:
+			await bot.send_message('ERRO',parse_mode=ParseMode.HTML)
+			await state.finish()
+			pass
+
+
+@dp.message_handler(commands='jurosc')
+async def process_jurosc(message: types.Message):
+	try:
+		if connectDao.AuthId(message.chat.id):
+			await FormJuros.input.set()
+			await message.reply("Qual porcentagem de lucro diario?(%)")
+		else:
+			await message.reply("Usuario não está ativo")
+	except Exception as a:
+		await message.reply("ERRO: {0} ".format(str(a)))
+
+
+
+@dp.message_handler(lambda message: is_float(message.text) == False, state=FormJuros.input)
+async def process_input_invalid(message: types.Message):
+	return await message.reply("Invalido, Qual porcentagem de lucro diario?(%)")
+
+		
+@dp.message_handler(state=FormJuros.input)
+async def process_input(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['input'] = message.text
+	if data['input'].lower() == 'cancelar':
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		await FormJuros.next()
+		await message.reply("Qual valor da conta?")
+@dp.message_handler(lambda message: is_float(message.text) == False, state=FormJuros.banca)
+async def process_banca_invalid(message: types.Message):
+	return await message.reply("Invalido, Qual valor da conta?")
+@dp.message_handler(state=FormJuros.banca)
+async def process_banca(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['banca'] = message.text
+	if data['banca'].lower() == 'cancelar':
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		await FormJuros.next()
+		await message.reply("Quantos dias?")
+
+
+
+
+@dp.message_handler(lambda message: is_int(message.text) == False, state=FormJuros.days)
+async def process_banca_invalid(message: types.Message):
+	return await message.reply("Invalido, Quantos dias?")
+
+
+
+
+@dp.message_handler(state=FormJuros.days)
+async def process_banca(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['days'] = message.text
+	if data['days'].lower() == 'cancelar':
+		await message.reply("Cancelado  - /jurosc")
+		await state.finish()
+	else:
+		try:
+			await message.reply(controlValue.jurosCom(float(data['banca']),float(data['input']),int(data['days'])))
+			await state.finish()
+		except Exception as a:
+			await message.reply('ERRO '+str(a))
+			await state.finish()
+
+class Prob(StatesGroup):
+	pair = State()
+	analysePct = State()
+	time = State()
+	filtro = State()
+	sistema = State()
+	finish = State()
+
+@dp.message_handler(commands='catalogar')
+async def cmd_catalogar(message: types.Message):
+	await Prob.pair.set()
+	await message.reply("Ok {0}\n\nVerificando pares abertos.. aguarde".format(message.from_user.first_name))
+	markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+	markup.add('cancelar')
+	markup.add('TODOS')
+	s, data = connectDao.getParesBd()
+	if s:
+		for pars in data:
+			markup.add(pars)
+	await message.reply("Ok {0}\n\nEscolha uma paridade ou Todos para catalogar todas segundo os próximos filtros".format(message.from_user.first_name),reply_markup=markup)
+	
+
+@dp.message_handler(lambda message: message.text not in ['TODOS','EURAUD','AUDNZD','GBPNZD','USDCAD','AUDJPY','GBPCAD',"USDINR-OTC","USDSGD-OTC","USDHKD-OTC",'GBPAUD','EURUSD','EURGBP','GBPJPY','EURJPY','GBPUSD','USDJPY','AUDCAD','NZDUSD','USDCHF','AUDUSD','EOSUSD','XRPUSD','ETHUSD','LTCUSD','BTCUSD','USDJPY-OTC','AUDCAD-OTC','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','EURCAD','cancelar'], state=Prob.pair)
+async def process_sev_invalid(message: types.Message):
+	return await message.reply("Invalido, Escolha uma paridade ou 'TODOS' para catalogar todas segundo os próximos filtros")
+
+
+@dp.message_handler(state=Prob.pair)
+async def process_pair(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		if message.text == "TODOS":
+			data['pair'] = None
+		else:
+			data['pair'] = message.text
+	if "cancelar" in message.text.lower():
+		await message.reply("Ok, cancelado")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("50","51","52","53","54","55","56","57","58","0",
+		"60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79",
+		"80","81","82","83","84","85","86","87","88","89",
+		"90","91","92","93","94","95","96","97","98","99","cancelar")
+		await Prob.next()
+		await message.reply("Ok\n\nqual porcentagem para análise?",reply_markup=markup)
+	
+
+
+@dp.message_handler(lambda message: message.text not in ["50","51","52","53","54","55","56","57","58","0",
+		"60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79",
+		"80","81","82","83","84","85","86","87","88","89",
+		"90","91","92","93","94","95","96","97","98","99","cancelar"], state=Prob.analysePct)
+async def process_pair_invalid(message: types.Message):
+	return await message.reply("Invalido, qual porcentagem para análise?")
+
+
+@dp.message_handler(state=Prob.analysePct)
+async def process_analysePct(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		data['analysePct'] = message.text
+	if 'cancelar' == message.text.lower():
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("M15","M5","M1","cancelar")
+		await Prob.next()
+		await message.reply("OK\n\n Você quer analisar em que time?",reply_markup=markup)
+
+@dp.message_handler(lambda message: message.text not in ["M15","M5","M1", 'cancelar'], state=Prob.time)
+async def process_timecat_invalid(message: types.Message):
+	return await message.reply("invalido, quer analisar em que time?")
+
+@dp.message_handler(state=Prob.time)
+async def process_times(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['time'] = message.text
+	if 'cancelar' in  message.text.lower():
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("FIXA","G1","G2","cancelar")
+		await Prob.next()
+		await message.reply("OK\n\nDeseja filtrar a quantos Gales?",reply_markup=markup)
+
+@dp.message_handler(lambda message: message.text not in ["FIXA","G1","G2","cancelar"], state=Prob.filtro)
+async def process_filtro_invalid(message: types.Message):
+	await bot.send_message(message.chat.id,'Invalido, Deseja filtrar a quantos Gales?',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(state=Prob.filtro)
+async def process_filtro(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['filtro'] = message.text
+	if "cancelar" in message.text.lower():
+		await message.reply("Ok, cancelado")
+		await state.finish()
+	else:
+		if data['time'] == 'M15':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("TODOS","1-VIRA CASACA","2-VIRA C. MHI","cancelar")
+			await Prob.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+		elif data['time'] == 'M5':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("TODOS","1-MHI","2-ESPELHO MAGICO","3-REPETICAO FINAL","4-FORCA MAIOR","5-FORCA MENOR","6-HAT TRICK","7-INSURGENTE","8-VELA SURPRESA","cancelar")
+			await Prob.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+		elif data['time'] == 'M1':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("TODOS","1-MHI","2-MHI-MAIORIA","3-ESPELHO MAGICO","4-REPETICAO MEDIA","5-REPETICAO FINAL","6-REPETICAO PRIMARIA","7-ETER","8-MHI-2","9-MHI-3","10-LEGADO ANCESTRAL","11-FORCA MAIOR","12-FORCA MENOR","13-MOTIM TRIPLO","cancelar")
+			await Prob.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+
+@dp.message_handler(lambda message: message.text not in ["TODOS","1-VIRA CASACA","2-VIRA C. MHI","1-MHI","1-MHI","2-ESPELHO MAGICO","3-REPETICAO FINAL","4-FORCA MAIOR","5-FORCA MENOR","6-HAT TRICK","7-INSURGENTE","8-VELA SURPRESA","2-MHI-MAIORIA","3-ESPELHO MAGICO","4-REPETICAO MEDIA","5-REPETICAO FINAL","6-REPETICAO PRIMARIA","7-ETER","8-MHI-2","9-MHI-3","10-LEGADO ANCESTRAL","11-FORCA MAIOR","12-FORCA MENOR","13-MOTIM TRIPLO","cancelar"], state=Prob.sistema)
+async def process_sistema_invalid(message: types.Message):
+	await bot.send_message(message.chat.id,'Invalido, Selecione uma estratégia..',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(state=Prob.sistema)
+async def process_sistema(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		if message.text == 'TODOS':
+			data['sistema'] = None
+		else:
+			data['sistema'] = message.text
+	if "cancelar" in message.text.lower():
+		await message.reply("Ok, cancelado")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("SIM","NÃO")
+		await Prob.next()
+		await message.reply("OK\n\nPosso iniciar?",reply_markup=markup)
+
+@dp.message_handler(state=Prob.finish)
+async def process_FINSH(message: types.Message, state: FSMContext):
+	global API_TOKEN
+	async with state.proxy() as data:
+		data['finish'] = message.text
+		markup = types.ReplyKeyboardRemove()
+		if data['finish'] == "SIM":
+			if connectDao.AuthId(message.chat.id):
+				await bot.send_message(message.chat.id,'Ok, vou analisar pra você. se demorar mais que 2 min eu não encontrei nada, então tente outro filtro.',parse_mode=ParseMode.HTML,reply_markup=markup)
+				threading.Thread(target=controlCatalog.catalogAnaly, args=(API_TOKEN,message.chat.id,data['pair'],int(data['analysePct']),int(data['time'][1:]),data['filtro'],data['sistema'],'vip'),daemon=True).start()
+			else:
+				if data['time'] == 'M1' and data['sistema'] in ["1-MHI","2-MHI-MAIORIA"]:
+					await bot.send_message(message.chat.id,'Ok, vou analisar pra você. se demorar mais que 2 min eu não encontrei nada, então tente outro filtro.',parse_mode=ParseMode.HTML,reply_markup=markup)
+					threading.Thread(target=controlCatalog.catalogAnaly, args=(API_TOKEN,message.chat.id,data['pair'],int(data['analysePct']),int(data['time'][1:]),data['filtro'],data['sistema'],'free'),daemon=True).start()
+				else:
+					await bot.send_message(message.chat.id,'Você só tem acesso ao time M1 e a estratégia MHI e MHI MAIORIA pois não tem uma licença.',parse_mode=ParseMode.HTML,reply_markup=markup)
+					await state.finish()
+		else:
+			await message.reply("Ok {0}, para começar novamente cique em /catalogar".format(message.from_user.first_name),reply_markup=markup)
+	await state.finish()
+@dp.message_handler(commands='stop')
+async def cmd_start(message: types.Message):
+	try:
+		conf  = controlValue.conf_(message.chat.id)
+		for dados in conf:
+			controlValue.conf(str(message.chat.id),{str(dados):False})
+			conf  = controlValue.conf_(message.chat.id)
+		await message.reply("Parando..aguarde a mensagem com estratégias e pares indicando: Finalizado")
+	except:
+		pass
+
+
+class ProbT(StatesGroup):
+	pair = State()
+	time = State()
+	filtro = State()
+	filtroTo = State()
+	sistema = State()
+	finish = State()
+
+
+
+@dp.message_handler(commands='notify')
+async def cmd_start(message: types.Message):
+	
+	x = 0 
+	conf  = controlValue.conf_(message.chat.id)
+	for dados in conf:
+		if conf[dados]:
+			x += 1
+	if x <= 4:	
+		await ProbT.pair.set()
+		await message.reply("Ok {0}\n\nVerificando pares abertos.. aguarde".format(message.from_user.first_name))
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add('cancelar')
+		s, data = connectDao.getParesBd()
+		if s:
+			for pars in data:
+				markup.add(pars)
+		await message.reply("Ok {0}\n\nEscolha uma paridade para notificar segundo os próximos filtros".format(message.from_user.first_name),reply_markup=markup)
+	
+	else:
+		await message.reply("Você passou o limite  - MAX: 4")
+
+@dp.message_handler(lambda message: message.text not in ['EURAUD','AUDNZD','GBPNZD','USDCAD','AUDJPY',"USDINR-OTC","USDSGD-OTC","USDHKD-OTC",'GBPCAD','GBPAUD','EURUSD','EURGBP','GBPJPY','EURJPY','GBPUSD','USDJPY','AUDCAD','NZDUSD','USDCHF','AUDUSD','EOSUSD','XRPUSD','ETHUSD','LTCUSD','BTCUSD','USDJPY-OTC','AUDCAD-OTC','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','EURCAD','cancelar'], state=ProbT.pair)
+async def process_notify_invalid(message: types.Message):
+	return await message.reply("escolha a opção no teclado")
+
+
+@dp.message_handler(state=ProbT.pair)
+async def process_pairs(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		if message.text == "TODOS":
+			data['pair'] = None
+		else:
+			data['pair'] = message.text
+	if 'cancelar' == message.text.lower():
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("M15","M5","M1","cancelar")
+		await ProbT.next()
+		await message.reply("OK\n\n Você quer analisar em que time?",reply_markup=markup)
+
+
+@dp.message_handler(lambda message: message.text not in ["M15","M5","M1", 'cancelar'], state=ProbT.time)
+async def process_timenot_invalid(message: types.Message):
+	return await message.reply("escolha a opção no teclado")
+
+
+@dp.message_handler(state=ProbT.time)
+async def process_timess(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['time'] = message.text
+	if 'cancelar' in  message.text.lower():
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("FIXA","G1","G2","cancelar")
+		await ProbT.next()
+		await message.reply("OK\n\nDeseja filtrar a quantos Gales?",reply_markup=markup)
+
+@dp.message_handler(lambda message: message.text not in ["FIXA","G1","G2","cancelar"], state=ProbT.filtro)
+async def process_filtrosss_invalid(message: types.Message):
+	await bot.send_message(message.chat.id,'Invalido, Deseja filtrar a quantos Gales?',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(state=ProbT.filtro)
+async def process_filtrosss(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['filtro'] = message.text
+	if 'cancelar' in  message.text.lower():
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("Continuar","cancelar")
+		await ProbT.next()
+		await message.reply("OK\n\nContinuar ou cancelar?",reply_markup=markup)
+
+@dp.message_handler(lambda message: message.text.lower() not in ["continuar","cancelar"], state=ProbT.filtroTo)
+async def process_filtroTosALS_isnvalid(message: types.Message):
+	await bot.send_message(message.chat.id,'Invalido, Continuar ou cancelar?',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(state=ProbT.filtroTo)
+async def process_filtroTosss(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['filtroTo'] = message.text.upper()
+	if "cancelar" in message.text.lower():
+		await message.reply("Ok, cancelado")
+		await state.finish()
+	else:
+		if data['time'] == 'M15':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("1-VIRA CASACA","2-VIRA C. MHI","cancelar")
+			await ProbT.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+		elif data['time'] == 'M5':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("1-MHI","2-ESPELHO MAGICO","3-REPETICAO FINAL","4-FORCA MAIOR","5-FORCA MENOR","6-HAT TRICK","7-INSURGENTE","8-VELA SURPRESA","cancelar")
+			await ProbT.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+		elif data['time'] == 'M1':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("1-MHI","2-MHI-MAIORIA","3-ESPELHO MAGICO","4-REPETICAO MEDIA","5-REPETICAO FINAL","6-REPETICAO PRIMARIA","7-ETER","8-MHI-2","9-MHI-3","10-LEGADO ANCESTRAL","11-FORCA MAIOR","12-FORCA MENOR","13-MOTIM TRIPLO","cancelar")
+			await ProbT.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+
+@dp.message_handler(lambda message: message.text not in ["1-VIRA CASACA","2-VIRA C. MHI","1-MHI","1-MHI","2-ESPELHO MAGICO","3-REPETICAO FINAL","4-FORCA MAIOR","5-FORCA MENOR","6-HAT TRICK","7-INSURGENTE","8-VELA SURPRESA","2-MHI-MAIORIA","3-ESPELHO MAGICO","4-REPETICAO MEDIA","5-REPETICAO FINAL","6-REPETICAO PRIMARIA","7-ETER","8-MHI-2","9-MHI-3","10-LEGADO ANCESTRAL","11-FORCA MAIOR","12-FORCA MENOR","13-MOTIM TRIPLO","cancelar"], state=ProbT.sistema)
+async def process_sistemasass_invalid(message: types.Message):
+	await bot.send_message(message.chat.id,'Invalido, Selecione uma estratégia.',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(state=ProbT.sistema)
+async def process_sistemasass(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		if message.text == 'TODOS':
+			data['sistema'] = None
+		else:
+			data['sistema'] = message.text
+	if "cancelar" in message.text.lower():
+		await message.reply("Ok, cancelado")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("SIM","NÃO")
+		await ProbT.next()
+		await message.reply("OK\n\nPosso iniciar?",reply_markup=markup)
+
+@dp.message_handler(state=ProbT.finish)
+async def process_FINSHToo(message: types.Message, state: FSMContext):
+	global API_TOKEN
+	async with state.proxy() as data:
+		data['finish'] = message.text
+		markup = types.ReplyKeyboardRemove()
+		if data['finish'] == "SIM":
+			if connectDao.AuthId(message.chat.id):
+				controlValue.conf(str(message.chat.id),{data['pair']+data['sistema']:True})
+				await bot.send_message(message.chat.id,'Ok, irei notificar você.',parse_mode=ParseMode.HTML,reply_markup=markup)
+				threading.Thread(target=controlCatalo.catalogAnaly, args=(API_TOKEN,message.chat.id,data['pair'],0,int(data['time'][1:]),data['filtro'],data['sistema'],data['filtroTo'],'vip'),daemon=True).start()
+			else:
+				await bot.send_message(message.chat.id,'13 estratégias premium estão performando dentro da sua catalogação neste exato momento.\n\n\nDesbloqueie elas neste link:\n\n\nhttp://allwinclub.vip/win-lab',parse_mode=ParseMode.HTML,reply_markup=markup)
+				if data['time'] == 'M1' and data['sistema'] in ["1-MHI","2-MHI-MAIORIA"]:
+					controlValue.conf(str(message.chat.id),{data['pair']+data['sistema']:True})
+					await bot.send_message(message.chat.id,'Ok, vou analisar pra você. se demorar mais que 2 min eu não encontrei nada, então tente outro filtro.',parse_mode=ParseMode.HTML,reply_markup=markup)
+					threading.Thread(target=controlCatalo.catalogAnaly, args=(API_TOKEN,message.chat.id,data['pair'],0,int(data['time'][1:]),data['filtro'],data['sistema'],data['filtroTo'],'free'),daemon=True).start()
+				else:
+					await bot.send_message(message.chat.id,'Você só tem acesso ao time M1 e a estratégia MHI e MHI MAIORIA pois não tem uma licença.',parse_mode=ParseMode.HTML,reply_markup=markup)
+					await state.finish()
+		else:
+			await message.reply("Ok {0}, para começar novamente cique em /notify".format(message.from_user.first_name),reply_markup=markup)
+	await state.finish()
+
+class ProbTf(StatesGroup):
+	pair = State()
+	time = State()
+	filtro = State()
+	filtroTo = State()
+	sistema = State()
+	finish = State()
+
+
+
+@dp.message_handler(commands='poshit')
+async def cmd_start(message: types.Message):
+	x = 0 
+	conf  = controlValue.conf_(message.chat.id)
+	for dados in conf:
+		if conf[dados]:
+			x += 1
+	if x <= 4:	
+		await ProbTf.pair.set()
+		await message.reply("Ok {0}\n\nVerificando pares abertos.. aguarde".format(message.from_user.first_name))
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add('cancelar')
+		s, data = connectDao.getParesBd()
+		if s:
+			for pars in data:
+				markup.add(pars)
+		await message.reply("Ok {0}\n\nEscolha uma paridade para notificar segundo os próximos filtros".format(message.from_user.first_name),reply_markup=markup)
+	
+	else:
+		await message.reply("Você passou o limite  - MAX: 4")
+
+@dp.message_handler(lambda message: message.text not in ['EURAUD','AUDNZD','GBPNZD','USDCAD','AUDJPY','GBPCAD','GBPAUD','EURUSD','EURGBP','GBPJPY',"USDINR-OTC","USDSGD-OTC","USDHKD-OTC",'EURJPY','GBPUSD','USDJPY','AUDCAD','NZDUSD','USDCHF','AUDUSD','EOSUSD','XRPUSD','ETHUSD','LTCUSD','BTCUSD','USDJPY-OTC','AUDCAD-OTC','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','EURCAD','cancelar'], state=ProbTf.pair)
+async def process_notify_invalid(message: types.Message):
+	return await message.reply("Invalido, Escolha uma paridade para notificar segundo os próximos filtros")
+
+
+@dp.message_handler(state=ProbTf.pair)
+async def process_pairs(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		if message.text == "TODOS":
+			data['pair'] = None
+		else:
+			data['pair'] = message.text
+	if 'cancelar' == message.text.lower():
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("M15","M5","M1","cancelar")
+		await ProbTf.next()
+		await message.reply("OK\n\n Você quer analisar em que time?",reply_markup=markup)
+
+
+@dp.message_handler(lambda message: message.text not in ["M15",'M5','M1', 'cancelar'], state=ProbTf.time)
+async def process_timenot_invalid(message: types.Message):
+	return await message.reply("Invalido, Você quer analisar em que time?")
+
+
+@dp.message_handler(state=ProbTf.time)
+async def process_timess(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['time'] = message.text
+	if 'cancelar' in  message.text.lower():
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("FIXA","G1","G2","cancelar")
+		await ProbTf.next()
+		await message.reply("OK\n\nDeseja filtrar a quantos Gales?",reply_markup=markup)
+
+@dp.message_handler(lambda message: message.text not in ["FIXA","G1","G2","cancelar"], state=ProbTf.filtro)
+async def process_filtrosss_invalid(message: types.Message):
+	await bot.send_message(message.chat.id,'Invalido, Deseja filtrar a quantos Gales?',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(state=ProbTf.filtro)
+async def process_filtrosss(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['filtro'] = message.text
+	if 'cancelar' in  message.text.lower():
+		await message.reply("Cancelado  ")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("Continuar","cancelar")
+		await ProbTf.next()
+		await message.reply("OK\n\nContinuar ou cancelar?",reply_markup=markup)
+
+@dp.message_handler(lambda message: message.text.lower() not in ["continuar","cancelar"], state=ProbTf.filtroTo)
+async def process_filtroTosALS_isnvalid(message: types.Message):
+	await bot.send_message(message.chat.id,'Invalido, Continuar ou cancelar?',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(state=ProbTf.filtroTo)
+async def process_filtroTosss(message: types.Message, state: FSMContext):
+	async with state.proxy() as data:
+		data['filtroTo'] = message.text.upper()
+	if "cancelar" in message.text.lower():
+		await message.reply("Ok, cancelado")
+		await state.finish()
+	else:
+		if data['time'] == 'M15':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("1-VIRA CASACA","2-VIRA C. MHI","cancelar")
+			await ProbTf.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+		elif data['time'] == 'M5':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("1-MHI","2-ESPELHO MAGICO","3-REPETICAO FINAL","4-FORCA MAIOR","5-FORCA MENOR","6-HAT TRICK","7-INSURGENTE","8-VELA SURPRESA","cancelar")
+			await ProbTf.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+		elif data['time'] == 'M1':
+			markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+			markup.add("1-MHI","2-MHI-MAIORIA","3-ESPELHO MAGICO","4-REPETICAO MEDIA","5-REPETICAO FINAL","6-REPETICAO PRIMARIA","7-ETER","8-MHI-2","9-MHI-3","10-LEGADO ANCESTRAL","11-FORCA MAIOR","12-FORCA MENOR","13-MOTIM TRIPLO","cancelar")
+			await ProbTf.next()
+			await message.reply("OK\n\nSelecione uma estratégia..",reply_markup=markup)
+
+
+@dp.message_handler(lambda message: message.text not in ["1-VIRA CASACA","2-VIRA C. MHI","1-MHI","1-MHI","2-ESPELHO MAGICO","3-REPETICAO FINAL","4-FORCA MAIOR","5-FORCA MENOR","6-HAT TRICK","7-INSURGENTE","8-VELA SURPRESA","2-MHI-MAIORIA","3-ESPELHO MAGICO","4-REPETICAO MEDIA","5-REPETICAO FINAL","6-REPETICAO PRIMARIA","7-ETER","8-MHI-2","9-MHI-3","10-LEGADO ANCESTRAL","11-FORCA MAIOR","12-FORCA MENOR","13-MOTIM TRIPLO","cancelar"], state=ProbTf.sistema)
+async def process_sistemasass_invalid(message: types.Message):
+	await bot.send_message(message.chat.id,'Invalido, Selecione uma estratégia..',parse_mode=ParseMode.HTML)
+
+
+@dp.message_handler(state=ProbTf.sistema)
+async def process_sistemasass(message: types.Message, state: FSMContext):
+	markup = types.ReplyKeyboardRemove()
+	async with state.proxy() as data:
+		if message.text == 'TODOS':
+			data['sistema'] = None
+		else:
+			data['sistema'] = message.text
+	if "cancelar" in message.text.lower():
+		await message.reply("Ok, cancelado")
+		await state.finish()
+	else:
+		markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
+		markup.add("SIM","NÃO")
+		await ProbTf.next()
+		await message.reply("OK\n\nPosso iniciar?",reply_markup=markup)
+
+@dp.message_handler(state=ProbTf.finish)
+async def process_FINSHToo(message: types.Message, state: FSMContext):
+	global API_TOKEN
+	async with state.proxy() as data:
+		data['finish'] = message.text
+		markup = types.ReplyKeyboardRemove()
+		if data['finish'] == "SIM":
+			if connectDao.AuthId(message.chat.id):
+				controlValue.conf(str(message.chat.id),{data['pair']+data['sistema']:True})
+				await bot.send_message(message.chat.id,'Ok, irei notificar você.',parse_mode=ParseMode.HTML,reply_markup=markup)
+				threading.Thread(target=controlCataloH.catalogAnaly, args=(API_TOKEN,message.chat.id,data['pair'],0,int(data['time'][1:]),data['filtro'],data['sistema'],data['filtroTo']),daemon=True).start()
+			else:
+				await bot.send_message(message.chat.id,'13 estratégias premium estão performando dentro da sua catalogação neste exato momento.\n\n\nDesbloqueie elas neste link:\n\n\nhttp://allwinclub.vip/win-lab',parse_mode=ParseMode.HTML,reply_markup=markup)
+				if data['time'] == 'M1' and data['sistema'] in ["1-MHI","2-MHI-MAIORIA"]:
+					controlValue.conf(str(message.chat.id),{data['pair']+data['sistema']:True})
+					await bot.send_message(message.chat.id,'Ok, vou analisar pra você. se demorar mais que 2 min eu não encontrei nada, então tente outro filtro.',parse_mode=ParseMode.HTML,reply_markup=markup)
+					threading.Thread(target=controlCataloH.catalogAnaly, args=(API_TOKEN,message.chat.id,data['pair'],0,int(data['time'][1:]),data['filtro'],data['sistema'],data['filtroTo']),daemon=True).start()
+				else:
+					await bot.send_message(message.chat.id,'Você só tem acesso ao time M1 e a estratégia MHI e MHI MAIORIA pois não tem uma licença.',parse_mode=ParseMode.HTML,reply_markup=markup)
+					await state.finish()
+		else:
+			await message.reply("Ok {0}, para começar novamente cique em /notify".format(message.from_user.first_name),reply_markup=markup)
+	await state.finish()
+
+
+
+
+if __name__ == '__main__':
+	#print(datetime.datetime.now(),"ss")
+	executor.start_polling(dp, skip_updates=True)
