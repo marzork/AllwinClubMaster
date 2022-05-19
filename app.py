@@ -214,13 +214,19 @@ Clique no link de cada sala e opte por entrar, depois é só aguardar a sua apro
 
 CASO O TELEGRAM EXIBA A MENSAGEM DE QUE O NÚMERO DE TENTATIVAS ESGOTOU, AGUARDE ALGUNS MINUTOS E ENTRE NOS CANAIS RESTANTES.
 
-OPERE A PRIMEIRA SEMANA SEGUINDO AS LIVES SEM GALE ÀS 08:00. 
+OPERE A PRIMEIRA SEMANA SEGUINDO AS LIVES SEM GALE À 00:00 e 12:30. 
 
 ❇️ FOREX
   |
 O mercado que movimenta 4 trilhões por dia. Melhor risco e recompensa.
 
 https://t.me/+ozGq9aE7dQgwZTYx
+
+❇️ OURO
+  |
+Sala de Sinais de pares XAU (Onça de Ouro) para Forex.
+
+https://t.me/+tGwxaYUCh1g5Y2Jh
 
 ❇️ M5 [LISTAS]
   |
