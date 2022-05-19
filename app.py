@@ -111,7 +111,7 @@ def validateEmail(email,senha):
 
 		if "ID inválido" in str(a):
 			a = wcapi.get("orders/"+str(senha)).json()
-			print(a)
+			#print(a)
 			if "ID inválido" in str(a):
 				return False
 			else:
@@ -196,6 +196,7 @@ async def process_optionsdateTop(message: types.Message, state: FSMContext):
 		await state.finish()
 	if validateEmail(data['senha'],data['email'].replace('#','')):
 		passd,date_c,valor,order_key,email,name,product_id,active = Sheac(data['email'].replace('#',''))
+		print(str(message.chat.id))
 		if passd != None:
 			sig, a = connectDao.insertAcc(str(email), str(passd), str(valor),str(order_key), str(name), str(product_id), str(active), 'LAB', str(message.chat.id), str(date_c), str(data['email']))
 			if sig:
@@ -322,7 +323,7 @@ Por favor um passo de cada vez, temos muitas histórias de sucesso e todas elas 
 				await message.reply('''
 				⚠️ ATENÇÃO ⚠️
 
-Você adquiriu o plano MENSAL, sabemos que no país em que vivemos é muito difícil se dispor de um valor fixo mensal, principalmente enquanto busca uma RENDA EXTRA, e é justamente por isso que decidimos proporcionar à você o VITALÍCIO do nosso clube após o pagamento de 3 mensalidades seguidas. Isso mesmo. NINGUÉM proporciona isso pra vocês, nosso foco é ajudar cada um, desta forma você fica no clube por 3 meses e garante o acesso para o resto da vida à todos os nossos recursos, salas, cursos e tudo que ainda está sendo desenvolvido.
+Você adquiriu um de nossos planos, sabemos que no país em que vivemos é muito difícil se dispor de um valor fixo mensal, principalmente enquanto busca uma RENDA EXTRA, e é justamente por isso que decidimos proporcionar à você o VITALÍCIO do nosso clube após o pagamento de 3 mensalidades seguidas. Isso mesmo. NINGUÉM proporciona isso pra vocês, nosso foco é ajudar cada um, desta forma você fica no clube por 3 meses e garante o acesso para o resto da vida à todos os nossos recursos, salas, cursos e tudo que ainda está sendo desenvolvido.
 
 TEMOS MUITAS NOVIDADES VINDO AÍ E QUEREMOS DE TODO O CORAÇÃO QUE VOCÊ FAÇA PARTE DISTO.
 
