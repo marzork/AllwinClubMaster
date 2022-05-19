@@ -360,6 +360,7 @@ async def command_start(message: types.Message):
 			if dayNow < futuro:
 				await bot.send_message(message.from_user.id, str(users[0])+" | "+str(users[1])+" | "+str(dateTimeFormat(users[2]))+" | "+str(users[3]), reply_markup = nav.mainMenu) 
 	else:
+		
 		await bot.send_message(message.from_user.id, 'Unauthorized') 
 		
 		 
