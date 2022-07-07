@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO)
 ACTIVCATALAGVip = ['TODOS','EURAUD','AUDNZD','GBPNZD','USDCAD','AUDJPY','GBPCAD','GBPAUD','EURUSD','EURGBP','GBPJPY','EURJPY','GBPUSD','USDJPY','AUDCAD',"USDINR-OTC","USDSGD-OTC","USDHKD-OTC",'NZDUSD','USDCHF','AUDUSD','EOSUSD','XRPUSD','ETHUSD','LTCUSD','BTCUSD','USDJPY-OTC','AUDCAD-OTC','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','EURCAD']
 #1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0
 #5205191564:AAHlQzCk2TQBqMtsd0QGDB8FcQTH3aL-GGw
-API_TOKEN = '1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0'
+API_TOKEN = '5205191564:AAHlQzCk2TQBqMtsd0QGDB8FcQTH3aL-GGw'
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
@@ -60,6 +60,7 @@ def Sheac(email):
 			if a['status'] in ['processing','active']:
 				return a['order_key'][12:],a['date_modified'], a['total'],a['order_key'],a['billing']['email'],a['line_items'][0]['name'],a['line_items'][0]['product_id'],'active'
 			return None,None,None, None,None,None,None,None,None
+
 def validateCod(email):
 	try:
 		ass = ''
@@ -81,7 +82,7 @@ def validateCod(email):
 					#dataFormat = str(datetime.datetime.now()).split('-')
 					#second_date = datetime.date(int(dataFormat[0]),int(dataFormat[1]),int(dataFormat[2][:-16]))
 					
-					if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
+					if str(a['line_items'][0]['product_id']) in ['27195','27197','27194','535','536','531']:
 						if a['status'] in ['processing','completed']:
 							return True,''
 						else:
@@ -90,7 +91,7 @@ def validateCod(email):
 						return False,'Produto não permitido: '+str(a['line_items'][0]['product_id'])
 			else:
 				
-				if str(a['line_items'][0]['product_id']) in ['531']:
+				if str(a['line_items'][0]['product_id']) in ['536']:
 					if a['status'] in ['processing','active']:
 						return True,''
 					else:
@@ -99,6 +100,7 @@ def validateCod(email):
 	except Exception as e:
 		#print(e)
 		return False,''
+
 def validateEmail(email,senha):
 	if True:
 		wcapi = API(
@@ -115,14 +117,14 @@ def validateEmail(email,senha):
 			if "ID inválido" in str(a):
 				return False
 			else:
-				if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
+				if str(a['line_items'][0]['product_id']) in ['27195','27197','27194','535','536','531']:
 					if email == a['billing']['email']:
 						return True
 					else:
 						return False
 				return False
 		else:
-			if str(a['line_items'][0]['product_id']) in ['531']:
+			if str(a['line_items'][0]['product_id']) in ['536']:
 				if email == a['billing']['email']:
 					return True
 				else:
@@ -170,7 +172,7 @@ class Formsig(StatesGroup):
 async def cmd_start(message: types.Message):
 	await Formsig.email.set()
 	await message.reply("Olá {0}, seja bem vindo ao nosso clube! Fui programado para te ajudar, então preciso cumprir meu objetivo! Qual o código da sua assinatura?\n(não utlize #, apenas o número) ".format(message.chat.first_name))
-	await bot.send_photo(message.chat.id, photo=open('ph.jpg', 'rb'),caption='Você encontra esse código ao logar no seu perfil na plataforma https://allwinclub.vip/perfil/subscriptions/ \n\nOBS: Você precisa fazer o Login primeiro.')
+	await bot.send_photo(message.chat.id, photo=open('ph.jpg', 'rb'),caption='Você encontra esse código ao logar no seu perfil na plataforma https://allwinclub.vip/painel/subscriptions/ \n\nOBS: Você precisa fazer o Login primeiro.')
 	
 
 @dp.message_handler(state=Formsig.email)	
@@ -228,35 +230,35 @@ Sala de Sinais de pares XAU (Onça de Ouro) para Forex.
 
 https://t.me/+tGwxaYUCh1g5Y2Jh
 
-❇️ M5 [LISTAS]
+❇️ MAGWIN GREEN (AO VIVO)
+  |
+Lives SEM GALE de operação com o Phelippão.
+
+https://t.me/+LvIkiEBNnUkxMDgx
+
+❇️ MAGWIN BLUE [AO VIVO M1]
+  |
+Lives SEM GALE expiração para 1 minuto com o Ramon.
+
+https://t.me/+MucIX-vEbUQ3MDQx
+
+❇️ MAGWIN RED (AO VIVO)
+  |
+Lives SEM GALE com o Joab.
+
+https://t.me/+XNZMaCDQBL8zMjM5
+
+❇️ [LISTAS]
   |
 Listas com tempo de expiração para 5 minutos.
 
 https://t.me/+Q9ShiqPKzRNjMjUx
 
-❇️ M5 [OTC]
+❇️ [OTC]
   |
 Listas com tempo de expiração para 5 minutos para o mercado de OTC.
 
 https://t.me/+5frS_yAiT7w5MjEx
-
-❇️ M1 [LISTAS]
-  |
-Listas com tempo de expiração para 1 minuto.
-
-https://t.me/+MucIX-vEbUQ3MDQx
-
-❇️ M1 [SESSIONS]
-  |
-Estratégias encaminhadas diretamente do nosso indicador Win Lab.
-
-https://t.me/+XNZMaCDQBL8zMjM5
-
-❇️ SINAIS DO MAGWIN (AO VIVO)
-  |
-Lives de operação com um dos nossos traders.
-
-https://t.me/+LvIkiEBNnUkxMDgx
 
 ❇️ M5 [24HR$]
   |
@@ -313,7 +315,6 @@ APLICAR JUROS COMPOSTOS AO DIA! O VALOR REFERENTE A % SEMPRE AUMENTA DE ACORDO C
 ⚠️ Assistir o curso é importante porque você se torna independente do horário do sinal, podendo pular os gales ou se posicionar em taxas melhores do que a da virada de vela.
 
 ⚠️ Salas 24HRs são para traders mais experientes, sugiro operar somente quando a assertividade estiver acima de 90%.
-
 https://t.me/+Q9ShiqPKzRNjMjUx''',reply_markup=markup)
 				await bot.send_video(message.chat.id, video=open('video.mp4', 'rb'),caption='Façam isso para conseguirem acompanhar todas as salas do clube!')
 				await bot.send_animation(message.chat.id, animation=open('gif.mp4', 'rb'),caption='Façam isso para conseguirem acompanhar todas as salas do clube!')
@@ -409,7 +410,7 @@ async def bot_message(message: types.Message):
 		await message.reply('Pode chamar o @marzork',reply_markup=nav.subMenuTre)
 	if message.text == 'ATIVAR ASSINATURA':
 		await message.reply("Que tipo de assinatura?",reply_markup=nav.subMenuTo)
-	if message.text in ['MENSAL','VITALICIO']:
+	if message.text in ['TRIMESTRAL ALLWINCLUB','SEMESTRAL ALLWINCLUB','VITALICIO ALLWINCLUB']:
 		await cmd_start(message)
 
 if __name__ == '__main__':

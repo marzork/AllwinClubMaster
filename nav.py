@@ -12,12 +12,13 @@ btnB = KeyboardButton('SUPORTE')
 subMenuTre = ReplyKeyboardMarkup(resize_keyboard = True)
 subMenuTre.add(btnB)
 
-
-btnB = KeyboardButton('MENSAL')
-btnA = KeyboardButton('VITALICIO')
+B1 = KeyboardButton('TRIMESTRAL ALLWINCLUB')
+B2 = KeyboardButton('SEMESTRAL ALLWINCLUB')
+B3 = KeyboardButton('VITALICIO ALLWINCLUB')
 subMenuTo = ReplyKeyboardMarkup(resize_keyboard = True)
-subMenuTo.add(btnB)
-subMenuTo.add(btnA)
+subMenuTo.add(B1)
+subMenuTo.add(B2)
+subMenuTo.add(B3)
 
 
 btnA = KeyboardButton('ENTRAR NO GRUPO GRATUITO')

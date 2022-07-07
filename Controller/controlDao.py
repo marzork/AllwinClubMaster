@@ -71,13 +71,13 @@ class connectDao:
 			myCursor = MyDb.cursor(buffered=True)
 			myCursor.execute("SELECT countSubs,id FROM copytraderone.contasallwinn where email='"+email+"'")
 			account = myCursor.fetchone()
-			if product_id in ['531','27195','27194','27197']:
+			if product_id in ['531','27195','27194','27197','535','536']:
 				if account == None:
 					pass
 				else:
 					myCursor.execute("DELETE FROM copytraderone.contasallwinn WHERE email = '"+str(email)+"'")
 					MyDb.commit()
-			if product_id in ['531','27195','27194','27197']:		
+			if product_id in ['531','27195','27194','27197','535','536']:		
 				if None != account:
 					countSubs = int(account[0]) + 1
 				else:
