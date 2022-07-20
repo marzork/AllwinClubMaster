@@ -5,11 +5,12 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
 from Controller.controlDao import connectDao
+from aiogram.types.message import ContentType
 from aiogram.utils import executor
 import threading, nav
 from datetime import date
 from woocommerce import API
-import datetime,time
+import datetime,time,telebot
 from Controller.controlEnum import MENSAGE
 from telegram import ParseMode, User
 from googletrans import Translator
@@ -24,7 +25,7 @@ logging.basicConfig(level=logging.INFO)
 ACTIVCATALAGVip = ['TODOS','EURAUD','AUDNZD','GBPNZD','USDCAD','AUDJPY','GBPCAD','GBPAUD','EURUSD','EURGBP','GBPJPY','EURJPY','GBPUSD','USDJPY','AUDCAD',"USDINR-OTC","USDSGD-OTC","USDHKD-OTC",'NZDUSD','USDCHF','AUDUSD','EOSUSD','XRPUSD','ETHUSD','LTCUSD','BTCUSD','USDJPY-OTC','AUDCAD-OTC','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','EURCAD']
 #1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0
 #5205191564:AAHlQzCk2TQBqMtsd0QGDB8FcQTH3aL-GGw
-API_TOKEN = '1856618899:AAGHq3wJkjNqtO5NiasW8jkaKJg6GOcubw0'
+API_TOKEN = '5205191564:AAHlQzCk2TQBqMtsd0QGDB8FcQTH3aL-GGw'
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
@@ -60,6 +61,7 @@ def Sheac(email):
 			if a['status'] in ['processing','active']:
 				return a['order_key'][12:],a['date_modified'], a['total'],a['order_key'],a['billing']['email'],a['line_items'][0]['name'],a['line_items'][0]['product_id'],'active'
 			return None,None,None, None,None,None,None,None,None
+
 def validateCod(email):
 	try:
 		ass = ''
@@ -90,7 +92,7 @@ def validateCod(email):
 						return False,'Produto não permitido: '+str(a['line_items'][0]['product_id'])
 			else:
 				
-				if str(a['line_items'][0]['product_id']) in ['531']:
+				if str(a['line_items'][0]['product_id']) in ['536','531','535']:
 					if a['status'] in ['processing','active']:
 						return True,''
 					else:
@@ -99,6 +101,7 @@ def validateCod(email):
 	except Exception as e:
 		#print(e)
 		return False,''
+
 def validateEmail(email,senha):
 	if True:
 		wcapi = API(
@@ -116,14 +119,14 @@ def validateEmail(email,senha):
 				return False
 			else:
 				if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
-					if email == a['billing']['email']:
+					if email.lower() == a['billing']['email'].lower():
 						return True
 					else:
 						return False
 				return False
 		else:
-			if str(a['line_items'][0]['product_id']) in ['531']:
-				if email == a['billing']['email']:
+			if str(a['line_items'][0]['product_id']) in ['535','536','531']:
+				if email.lower() == a['billing']['email'].lower():
 					return True
 				else:
 					return False
@@ -163,6 +166,9 @@ async def command_start(message: types.Message):
 
 class Formsig(StatesGroup):
 	email = State()
+	upo = State()
+	upt = State()
+	upf = State()
 	senha = State()
 	finish = State()
 
@@ -170,7 +176,7 @@ class Formsig(StatesGroup):
 async def cmd_start(message: types.Message):
 	await Formsig.email.set()
 	await message.reply("Olá {0}, seja bem vindo ao nosso clube! Fui programado para te ajudar, então preciso cumprir meu objetivo! Qual o código da sua assinatura?\n(não utlize #, apenas o número) ".format(message.chat.first_name))
-	await bot.send_photo(message.chat.id, photo=open('ph.jpg', 'rb'),caption='Você encontra esse código ao logar no seu perfil na plataforma https://allwinclub.vip/perfil/subscriptions/ \n\nOBS: Você precisa fazer o Login primeiro.')
+	await bot.send_photo(message.chat.id, photo=open('ph.jpg', 'rb'),caption='Você encontra esse código ao logar no seu perfil na plataforma https://allwinclub.vip/painel/subscriptions/ \n\nOBS: Você precisa fazer o Login primeiro.')
 	
 
 @dp.message_handler(state=Formsig.email)	
@@ -183,8 +189,73 @@ async def process_semail(message: types.Message, state: FSMContext):
 		await state.finish()
 	else:
 		await Formsig.next()
-		await message.reply("Isso ai {0}, Qual email?".format(message.chat.first_name))
+		await message.reply("Isso ai {0}, Envie uma foto ou #print do cartão utilizado para a compra (visíveis apenas os 4 últimos dígitos e nome do titular) restante esconder/desenhar em cima.".format(message.chat.first_name))
 
+@dp.message_handler(state=Formsig.upo, content_types=ContentType.ANY)
+async def process_ban(message: types.PhotoSize, state: FSMContext):
+	async with state.proxy() as data:
+		if message.text:
+			await state.finish()
+		else:
+			if message.content_type == 'photo':
+				bots = telebot.TeleBot(API_TOKEN)
+				file_info = bots.get_file(message.photo[0].file_id)
+				namefile = str(datetime.datetime.now()).replace(' ','')
+				namefile = namefile.replace('.','')
+				namefile = namefile.replace(':','')
+				namefile = namefile.replace('-','')
+				downloaded_file = bots.download_file(file_info.file_path)
+				with open(namefile+'.png', 'wb') as new_file:
+					new_file.write(downloaded_file)
+				data["upo"] = namefile+'.png'
+				await Formsig.next()
+				await message.reply("Ok, Foto do titular do cartão segurando documento de identidade, legível.")
+			else:
+				await state.finish()
+		
+		
+@dp.message_handler(state=Formsig.upt, content_types=ContentType.ANY)
+async def process_ban(message: types.PhotoSize, state: FSMContext):
+	async with state.proxy() as data:
+		if message.text:
+			await state.finish()
+		else:
+			if message.content_type == 'photo':
+				bots = telebot.TeleBot(API_TOKEN)
+				file_info = bots.get_file(message.photo[0].file_id)
+				namefile = str(datetime.datetime.now()).replace(' ','')
+				namefile = namefile.replace('.','')
+				namefile = namefile.replace(':','')
+				namefile = namefile.replace('-','')
+				downloaded_file = bots.download_file(file_info.file_path)
+				with open(namefile+'.png', 'wb') as new_file:
+					new_file.write(downloaded_file)
+				data["upt"] = namefile+'.png'
+				await Formsig.next()
+				await message.reply("ok, Foto documento separado junto com um papel escrito Membro All Win Club.")
+			else:
+				await state.finish()
+@dp.message_handler(state=Formsig.upf, content_types=ContentType.ANY)
+async def process_ban(message: types.PhotoSize, state: FSMContext):
+	async with state.proxy() as data:
+		if message.text:
+			await state.finish()
+		else:
+			if message.content_type == 'photo':
+				bots = telebot.TeleBot(API_TOKEN)
+				file_info = bots.get_file(message.photo[0].file_id)
+				namefile = str(datetime.datetime.now()).replace(' ','')
+				namefile = namefile.replace('.','')
+				namefile = namefile.replace(':','')
+				namefile = namefile.replace('-','')
+				downloaded_file = bots.download_file(file_info.file_path)
+				with open(namefile+'.png', 'wb') as new_file:
+					new_file.write(downloaded_file)
+				data["upf"] = namefile+'.png'
+				await Formsig.next()
+				await message.reply("Ok, Qual email do site?")
+			else:
+				await state.finish()
 @dp.message_handler(state=Formsig.senha)
 async def process_optionsdateTop(message: types.Message, state: FSMContext):
 	markup = types.ReplyKeyboardRemove()
@@ -196,10 +267,14 @@ async def process_optionsdateTop(message: types.Message, state: FSMContext):
 		await state.finish()
 	if validateEmail(data['senha'],data['email'].replace('#','')):
 		passd,date_c,valor,order_key,email,name,product_id,active = Sheac(data['email'].replace('#',''))
-		print(str(message.chat.id))
 		if passd != None:
 			sig, a = connectDao.insertAcc(str(email), str(passd), str(valor),str(order_key), str(name), str(product_id), str(active), 'LAB', str(message.chat.id), str(date_c), str(data['email']))
 			if sig:
+				await bot.send_photo(1406327626, photo=open(data["upo"], 'rb'), caption=str(message.chat.id)+' - cartão')
+				await bot.send_photo(1406327626, photo=open(data["upt"], 'rb'), caption=str(message.chat.id)+' - identidade')
+				await bot.send_photo(1406327626, photo=open(data["upf"], 'rb'), caption=str(message.chat.id)+' - documento separado junto com um papel')
+				await bot.send_message(1406327626, str(data['senha'])+' - '+str(data['email'])+' - '+str(message.chat.id),parse_mode=ParseMode.HTML)
+				
 				await message.reply(''' 
 
 🙅🏻 Bem Vindo ao Clube! 
@@ -228,35 +303,35 @@ Sala de Sinais de pares XAU (Onça de Ouro) para Forex.
 
 https://t.me/+tGwxaYUCh1g5Y2Jh
 
-❇️ M5 [LISTAS]
+❇️ MAGWIN GREEN (AO VIVO)
+  |
+Lives SEM GALE de operação com o Phelippão.
+
+https://t.me/+LvIkiEBNnUkxMDgx
+
+❇️ MAGWIN BLUE [AO VIVO M1]
+  |
+Lives SEM GALE expiração para 1 minuto com o Ramon.
+
+https://t.me/+MucIX-vEbUQ3MDQx
+
+❇️ MAGWIN RED (AO VIVO)
+  |
+Lives SEM GALE com o Joab.
+
+https://t.me/+XNZMaCDQBL8zMjM5
+
+❇️ [LISTAS]
   |
 Listas com tempo de expiração para 5 minutos.
 
 https://t.me/+Q9ShiqPKzRNjMjUx
 
-❇️ M5 [OTC]
+❇️ [OTC]
   |
 Listas com tempo de expiração para 5 minutos para o mercado de OTC.
 
 https://t.me/+5frS_yAiT7w5MjEx
-
-❇️ M1 [LISTAS]
-  |
-Listas com tempo de expiração para 1 minuto.
-
-https://t.me/+MucIX-vEbUQ3MDQx
-
-❇️ M1 [SESSIONS]
-  |
-Estratégias encaminhadas diretamente do nosso indicador Win Lab.
-
-https://t.me/+XNZMaCDQBL8zMjM5
-
-❇️ SINAIS DO MAGWIN (AO VIVO)
-  |
-Lives de operação com um dos nossos traders.
-
-https://t.me/+LvIkiEBNnUkxMDgx
 
 ❇️ M5 [24HR$]
   |
@@ -313,7 +388,6 @@ APLICAR JUROS COMPOSTOS AO DIA! O VALOR REFERENTE A % SEMPRE AUMENTA DE ACORDO C
 ⚠️ Assistir o curso é importante porque você se torna independente do horário do sinal, podendo pular os gales ou se posicionar em taxas melhores do que a da virada de vela.
 
 ⚠️ Salas 24HRs são para traders mais experientes, sugiro operar somente quando a assertividade estiver acima de 90%.
-
 https://t.me/+Q9ShiqPKzRNjMjUx''',reply_markup=markup)
 				await bot.send_video(message.chat.id, video=open('video.mp4', 'rb'),caption='Façam isso para conseguirem acompanhar todas as salas do clube!')
 				await bot.send_animation(message.chat.id, animation=open('gif.mp4', 'rb'),caption='Façam isso para conseguirem acompanhar todas as salas do clube!')
@@ -409,7 +483,7 @@ async def bot_message(message: types.Message):
 		await message.reply('Pode chamar o @marzork',reply_markup=nav.subMenuTre)
 	if message.text == 'ATIVAR ASSINATURA':
 		await message.reply("Que tipo de assinatura?",reply_markup=nav.subMenuTo)
-	if message.text in ['MENSAL','VITALICIO']:
+	if message.text in ['TRIMESTRAL ALLWINCLUB','SEMESTRAL ALLWINCLUB','VITALICIO ALLWINCLUB']:
 		await cmd_start(message)
 
 if __name__ == '__main__':

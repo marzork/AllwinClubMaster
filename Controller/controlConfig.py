@@ -1,7 +1,6 @@
 from datetime import datetime
 from pytz import timezone
 import telegram
-from iqoptionapi.constants import ACTIVES
 from telegram import ParseMode
 import json
 import pandas as pd
@@ -42,139 +41,7 @@ class controlOptions:
 			return pay
 
 class controlParameter():
-	def ValiList(lista):
-		try:
-			configli = lista.split("\n")
-			listt = lista.split("\n")
-			for index,a in enumerate(listt):
-				if a == '':
-					del listt[index]
-			for dadoss in listt:
-				dados = dadoss.split(';')
-				T = dados[0]
-				T = str(T)[1:]
-				T = int(T)
-				P = dados[1].strip()
-				H = dados[2].strip()
-				D = dados[3].strip()
-				if T != 1 and T != 5 and T != 15 and T != 60:
-					tex = 'Lista: Tempo não permitido! set - "'+str(T)+''
-					listt = []
-					result = False
-				elif P not in ACTIVES:
-					tex = 'Lista: Par não existe! set - "'+P+''
-					listt = []
-					result = False
-				elif controlParameter.validate(H) == False:
-					tex = 'Lista: Horario não existe! set - "'+H+''
-					listt = []
-					result = False
-				elif D != "CALL" and D != "PUT":
-					tex = 'Lista: Erro na Paridade! set = "'+D+''
-					listt = []
-					result = False
-			if listt != []:
-				newline = ""
-				for a in configli:
-					a = a.split(";")
-					T = a[0]
-					P = a[1]
-					H = a[2]
-					D = a[3]
-					newline += H+';'+T+';'+P+';'+D+'\n'
-				newline = newline.strip()
-				newline  = newline.split('\n')
-				newli = ""
-				for s in sorted(newline):
-					newli += str(s)+"\n"
-				newli = newli.split("\n")
-				sinal = ""
-				for index,a in enumerate(newli):
-					if a == '':
-						del newli[index]
-				lista = ""
-				for n in newli:
-					n = n.split(";")
-					T = n[1]
-					P = n[2]
-					H = n[0]
-					D = n[3]
-					sinal = T+';'+P+';'+H+';'+D
-					lista += sinal+'\n'
-					listt = lista.strip()
-			return True
-		except Exception as a:
-			return False
-	def ValidaList(lista):
-		try:
-			tex = ''
-			result = False
-			configli = lista.split("\n")
-			listt = lista.split("\n")
-			for index,a in enumerate(listt):
-				if a == '':
-					del listt[index]
-			for dadoss in listt:
-				dados = dadoss.split(';')
-				T = dados[0]
-				T = str(T)[1:]
-				T = int(T)
-				P = dados[1].strip()
-				H = dados[2].strip()
-				D = dados[3].strip()
-				if T != 1 and T != 5 and T != 15 and T != 60 and T != 30 and T != 10:
-					tex = 'Lista: Tempo não permitido! set - "'+str(T)+'"\nerro aqui:'+dadoss+''
-					listt = []
-					result = False
-				elif P not in ACTIVES:
-					tex = 'Lista: Par não existe! set - "'+P+'"\nerro aqui:'+dadoss+''
-					listt = []
-					result = False
-				elif controlParameter.validate(H) == False:
-					tex = 'Lista: Horario não existe! set - "'+H+'"\nerro aqui:'+dadoss+''
-					listt = []
-					result = False
-				elif D != "CALL" and D != "PUT":
-					tex = 'Lista: Erro na Paridade! set = "'+D+'"\nerro aqui:'+dadoss+''
-					listt = []
-					result = False
-			if listt != []:
-				newline = ""
-				for a in configli:
-					a = a.split(";")
-					T = a[0]
-					P = a[1]
-					H = a[2]
-					D = a[3]
-					newline += H+';'+T+';'+P+';'+D+'\n'
-				newline = newline.strip()
-				newline  = newline.split('\n')
-				newli = ""
-				for s in sorted(newline):
-					newli += str(s)+"\n"
-				newli = newli.split("\n")
-				sinal = ""
-				for index,a in enumerate(newli):
-					if a == '':
-						del newli[index]
-				lista = ""
-				for n in newli:
-					n = n.split(";")
-					T = n[1]
-					P = n[2]
-					H = n[0]
-					D = n[3]
-					sinal = T+';'+P+';'+H+';'+D
-					lista += sinal+'\n'
-					listt = lista.strip()
-					tex = ""
-					result = True
-			return result, listt, tex
-		except Exception as a:
-			if 'nvalid literal fo' in str(a):
-				a = 'Lista invalida'
-			return False, '', str(a)
-	
+
 	def validate(date_text):
 		try:
 			if date_text != datetime.strptime(date_text, '%H:%M:%S').strftime('%H:%M:%S'):
