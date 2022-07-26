@@ -17,3 +17,4 @@ urllib3==1.26.4
 configparser==5.2.0
 woocommerce==3.0.0
 googletrans==3.0.0
+pandas==1.4.3
