@@ -199,7 +199,7 @@ async def process_ban(message: types.PhotoSize, state: FSMContext):
 		else:
 			if message.content_type == 'photo':
 				bots = telebot.TeleBot(API_TOKEN)
-				file_info = bots.get_file(message.photo[0].file_id)
+				file_info = bots.get_file(message.photo[-1].file_id)
 				namefile = str(datetime.datetime.now()).replace(' ','')
 				namefile = namefile.replace('.','')
 				namefile = namefile.replace(':','')
@@ -222,7 +222,7 @@ async def process_ban(message: types.PhotoSize, state: FSMContext):
 		else:
 			if message.content_type == 'photo':
 				bots = telebot.TeleBot(API_TOKEN)
-				file_info = bots.get_file(message.photo[0].file_id)
+				file_info = bots.get_file(message.photo[-1].file_id)
 				namefile = str(datetime.datetime.now()).replace(' ','')
 				namefile = namefile.replace('.','')
 				namefile = namefile.replace(':','')
@@ -243,7 +243,7 @@ async def process_ban(message: types.PhotoSize, state: FSMContext):
 		else:
 			if message.content_type == 'photo':
 				bots = telebot.TeleBot(API_TOKEN)
-				file_info = bots.get_file(message.photo[0].file_id)
+				file_info = bots.get_file(message.photo[-1].file_id)
 				namefile = str(datetime.datetime.now()).replace(' ','')
 				namefile = namefile.replace('.','')
 				namefile = namefile.replace(':','')
