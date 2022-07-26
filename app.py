@@ -83,7 +83,7 @@ def validateCod(email):
 					#dataFormat = str(datetime.datetime.now()).split('-')
 					#second_date = datetime.date(int(dataFormat[0]),int(dataFormat[1]),int(dataFormat[2][:-16]))
 					
-					if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
+					if str(a['line_items'][0]['product_id']) in ['27195','27197','27194','536']:
 						if a['status'] in ['processing','completed']:
 							return True,''
 						else:
@@ -118,7 +118,7 @@ def validateEmail(email,senha):
 			if "ID inválido" in str(a):
 				return False
 			else:
-				if str(a['line_items'][0]['product_id']) in ['27195','27197','27194']:
+				if str(a['line_items'][0]['product_id']) in ['27195','27197','27194','536']:
 					if email.lower() == a['billing']['email'].lower():
 						return True
 					else:
